@@ -77,18 +77,19 @@ status.TextSize = 11
 
 btn.MouseButton1Click:Connect(function()
     local keyDigitada = box.Text
+    local useridRoblox = tostring(game.Players.LocalPlayer.UserId)
     status.TextColor3 = Color3.fromRGB(255, 200, 100)
     status.Text = "Verificando..."
 
     local sucesso = pcall(function()
-        local url = "https://phhub-api.vercel.app/api/auth?key=" .. keyDigitada .. "&user=${user}"
+        local url = "https://phhub-api.vercel.app/api/auth?key=" .. keyDigitada .. "&user=${user}&userid=" .. useridRoblox
         local resposta = HttpService:JSONDecode(game:HttpGet(url))
         if resposta.ok then
             status.TextColor3 = Color3.fromRGB(100, 255, 100)
             status.Text = "Acesso liberado!"
             task.wait(0.8)
             sg:Destroy()
-            loadstring(game:HttpGet("https://phhub-api.vercel.app/api/phhub?key=" .. keyDigitada .. "&user=${user}"))()
+            loadstring(game:HttpGet("https://phhub-api.vercel.app/api/phhub?key=" .. keyDigitada .. "&user=${user}&userid=" .. useridRoblox))()
         else
             status.TextColor3 = Color3.fromRGB(255, 100, 100)
             status.Text = "Key invalida!"
