@@ -441,3 +441,739 @@ criarCheckJanela("Player Aura", function(ativo)
                 if hl then hl:Destroy() end
             end
         end
+    end
+end)
+
+criarCheckJanela("Auto Upgrade Base", function(ativo)
+    if ativo then
+        task.spawn(function()
+            while ativo do
+                pcall(function()
+                    Bridge:FireServer("Bases", "Upgrade")
+                end)
+                task.wait(2)
+            end
+        end)
+    end
+end)
+
+contadorLayout = contadorLayout + 1
+local bHop = Instance.new("TextButton", scJ)
+bHop.LayoutOrder = contadorLayout
+bHop.Size = UDim2.new(1, -4, 0, 28)
+bHop.BackgroundColor3 = Color3.fromRGB(80, 50, 140)
+bHop.TextColor3 = Color3.new(1,1,1)
+bHop.Text = "Server Hop"
+bHop.Font = Enum.Font.SourceSansBold
+bHop.TextSize = 11
+local cHop = Instance.new("UICorner", bHop); cHop.CornerRadius = UDim.new(0, 6)
+bHop.MouseButton1Click:Connect(function()
+    local plr = Players.LocalPlayer
+    local sucesso = pcall(function()
+        local servidores = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+        for _, s in ipairs(servidores.data) do
+            if s.playing < s.maxPlayers and s.id ~= game.JobId then
+                plr:TeleportToPlaceInstance(game.PlaceId, s.id, plr)
+                return
+            end
+        end
+    end)
+    if not sucesso then
+        game:GetService("TeleportService"):Teleport(game.PlaceId, plr)
+    end
+end)
+
+local f = Instance.new("Frame", sg)
+f.Size = UDim2.new(0, 260, 0, 340)
+f.Position = UDim2.new(0.5, -130, 0.15, 0)
+f.BackgroundColor3 = Color3.fromRGB(25, 20, 40)
+f.Active = true
+f.Draggable = true
+local cF = Instance.new("UICorner", f); cF.CornerRadius = UDim.new(0, 12)
+local sF = Instance.new("UIStroke", f); sF.Color = Color3.fromRGB(150,100,255); sF.Thickness = 3
+
+local topo = Instance.new("Frame", f)
+topo.Size = UDim2.new(1, 0, 0, 28)
+topo.BackgroundColor3 = Color3.fromRGB(40, 30, 70)
+topo.BorderSizePixel = 0
+local cT = Instance.new("UICorner", topo); cT.CornerRadius = UDim.new(0, 12)
+
+local tit = Instance.new("TextLabel", topo)
+tit.Size = UDim2.new(1, -60, 1, 0)
+tit.Position = UDim2.new(0, 10, 0, 0)
+tit.BackgroundTransparency = 1
+tit.TextColor3 = Color3.new(1,1,1)
+tit.Text = "PH HUB"
+tit.Font = Enum.Font.SourceSansBold
+tit.TextSize = 12
+tit.TextXAlignment = Enum.TextXAlignment.Left
+
+local bMin = Instance.new("TextButton", topo)
+bMin.Size = UDim2.new(0, 22, 0, 22)
+bMin.Position = UDim2.new(1, -50, 0, 3)
+bMin.BackgroundColor3 = Color3.fromRGB(80, 50, 140)
+bMin.TextColor3 = Color3.new(1,1,1)
+bMin.Text = "-"
+bMin.Font = Enum.Font.SourceSansBold
+bMin.TextSize = 15
+local cBM = Instance.new("UICorner", bMin); cBM.CornerRadius = UDim.new(0, 6)
+
+local bX = Instance.new("TextButton", topo)
+bX.Size = UDim2.new(0, 22, 0, 22)
+bX.Position = UDim2.new(1, -26, 0, 3)
+bX.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
+bX.TextColor3 = Color3.new(1,1,1)
+bX.Text = "X"
+bX.Font = Enum.Font.SourceSansBold
+bX.TextSize = 12
+local cBX = Instance.new("UICorner", bX); cBX.CornerRadius = UDim.new(0, 6)
+
+local bAutoEquip = Instance.new("TextButton", f)
+bAutoEquip.Size = UDim2.new(0.5, -12, 0, 24)
+bAutoEquip.Position = UDim2.new(0, 8, 0, 33)
+bAutoEquip.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+bAutoEquip.TextColor3 = Color3.fromRGB(180, 180, 180)
+bAutoEquip.Text = "Auto Equip: OFF"
+bAutoEquip.Font = Enum.Font.SourceSansBold
+bAutoEquip.TextSize = 10
+local cAE = Instance.new("UICorner", bAutoEquip); cAE.CornerRadius = UDim.new(0, 8)
+
+local autoEquipAtivo = false
+bAutoEquip.MouseButton1Click:Connect(function()
+    autoEquipAtivo = not autoEquipAtivo
+    if autoEquipAtivo then
+        bAutoEquip.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        bAutoEquip.TextColor3 = Color3.new(1,1,1)
+        bAutoEquip.Text = "Auto Equip: ON"
+    else
+        bAutoEquip.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        bAutoEquip.TextColor3 = Color3.fromRGB(180, 180, 180)
+        bAutoEquip.Text = "Auto Equip: OFF"
+    end
+end)
+
+local bSell = Instance.new("TextButton", f)
+bSell.Size = UDim2.new(0.5, -12, 0, 24)
+bSell.Position = UDim2.new(0.5, 4, 0, 33)
+bSell.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
+bSell.TextColor3 = Color3.new(1,1,1)
+bSell.Text = "VENDER"
+bSell.Font = Enum.Font.SourceSansBold
+bSell.TextSize = 10
+local cBS = Instance.new("UICorner", bSell); cBS.CornerRadius = UDim.new(0, 8)
+
+bSell.MouseButton1Click:Connect(function()
+    local ids = {}
+    local plr = game.Players.LocalPlayer
+    local pg = plr:FindFirstChild("PlayerGui")
+    if pg then
+        for _, g in pairs(pg:GetDescendants()) do
+            if g.Name:match("^%w+%-%w+%-%w+%-%w+%-%w+$") then table.insert(ids, g.Name) end
+        end
+    end
+    if #ids == 0 then bSell.Text = "SEM PETS!" task.wait(1.5) bSell.Text = "VENDER" return end
+    local tab = {}
+    for _, id in ipairs(ids) do tab[id] = true end
+    pcall(function() Bridge:FireServer("Bases", "Pets", "Sell", tab) end)
+    bSell.Text = "OK " .. #ids
+    local notif = Instance.new("TextLabel", sg)
+    notif.Size = UDim2.new(0, 250, 0, 35)
+    notif.Position = UDim2.new(0.5, -125, 0.15, 0)
+    notif.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    notif.TextColor3 = Color3.new(1,1,1)
+    notif.Text = "Vendeu " .. #ids .. " pets!"
+    notif.Font = Enum.Font.SourceSansBold
+    notif.TextSize = 13
+    local cN = Instance.new("UICorner", notif); cN.CornerRadius = UDim.new(0, 8)
+    task.wait(2)
+    notif:Destroy()
+    task.wait(1.5)
+    bSell.Text = "VENDER"
+end)
+
+local bAuto = Instance.new("TextButton", f)
+bAuto.Size = UDim2.new(1, -16, 0, 22)
+bAuto.Position = UDim2.new(0, 8, 0, 62)
+bAuto.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+bAuto.TextColor3 = Color3.fromRGB(180, 180, 180)
+bAuto.Text = "Auto Buy: OFF"
+bAuto.Font = Enum.Font.SourceSansBold
+bAuto.TextSize = 10
+local cBA = Instance.new("UICorner", bAuto); cBA.CornerRadius = UDim.new(0, 8)
+
+local autoAtivo = false
+bAuto.MouseButton1Click:Connect(function()
+    autoAtivo = not autoAtivo
+    if autoAtivo then
+        bAuto.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        bAuto.TextColor3 = Color3.new(1,1,1)
+        bAuto.Text = "Auto Buy: ON"
+    else
+        bAuto.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        bAuto.TextColor3 = Color3.fromRGB(180, 180, 180)
+        bAuto.Text = "Auto Buy: OFF"
+    end
+end)
+
+local rars = {
+    {n="Common",s="Com",c=Color3.fromRGB(180,180,180),a=false},
+    {n="Uncommon",s="Unc",c=Color3.fromRGB(80,220,80),a=false},
+    {n="Rare",s="Rar",c=Color3.fromRGB(80,160,255),a=false},
+    {n="Epic",s="Epi",c=Color3.fromRGB(200,80,255),a=false},
+    {n="Legendary",s="Leg",c=Color3.fromRGB(255,200,60),a=false},
+    {n="Mythical",s="Myt",c=Color3.fromRGB(255,80,80),a=false},
+    {n="Secret",s="Sec",c=Color3.fromRGB(255,80,180),a=false},
+}
+
+local contR = Instance.new("Frame", f)
+contR.Size = UDim2.new(1, -16, 0, 22)
+contR.Position = UDim2.new(0, 8, 0, 88)
+contR.BackgroundTransparency = 1
+local layR = Instance.new("UIListLayout", contR)
+layR.FillDirection = Enum.FillDirection.Horizontal
+layR.Padding = UDim.new(0, 2)
+
+for _, r in ipairs(rars) do
+    local b = Instance.new("TextButton", contR)
+    b.Size = UDim2.new(0, 31, 0, 22)
+    b.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    b.TextColor3 = Color3.fromRGB(180, 180, 180)
+    b.Text = r.s
+    b.Font = Enum.Font.SourceSansBold
+    b.TextSize = 9
+    local c = Instance.new("UICorner", b); c.CornerRadius = UDim.new(0, 5)
+    b.MouseButton1Click:Connect(function()
+        r.a = not r.a
+        if r.a then
+            b.BackgroundColor3 = r.c
+            b.TextColor3 = Color3.new(1,1,1)
+            b.Text = "ON"
+        else
+            b.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+            b.TextColor3 = Color3.fromRGB(180, 180, 180)
+            b.Text = r.s
+        end
+    end)
+end
+
+local bPetSpaw = Instance.new("TextButton", f)
+bPetSpaw.Size = UDim2.new(0.35, -6, 0, 20)
+bPetSpaw.Position = UDim2.new(0, 8, 0, 114)
+bPetSpaw.BackgroundColor3 = Color3.fromRGB(80, 50, 140)
+bPetSpaw.TextColor3 = Color3.new(1,1,1)
+bPetSpaw.Text = "Pets Spaw:"
+bPetSpaw.Font = Enum.Font.SourceSansBold
+bPetSpaw.TextSize = 9
+local cP1 = Instance.new("UICorner", bPetSpaw); cP1.CornerRadius = UDim.new(0, 6)
+
+local bSelectPets = Instance.new("TextButton", f)
+bSelectPets.Size = UDim2.new(0.35, -6, 0, 20)
+bSelectPets.Position = UDim2.new(0.35, 1, 0, 114)
+bSelectPets.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+bSelectPets.TextColor3 = Color3.fromRGB(180, 180, 180)
+bSelectPets.Text = "Select Pets"
+bSelectPets.Font = Enum.Font.SourceSansBold
+bSelectPets.TextSize = 9
+local cP2 = Instance.new("UICorner", bSelectPets); cP2.CornerRadius = UDim.new(0, 6)
+
+local bValor = Instance.new("TextButton", f)
+bValor.Size = UDim2.new(0.3, -6, 0, 20)
+bValor.Position = UDim2.new(0.7, -3, 0, 114)
+bValor.BackgroundColor3 = Color3.fromRGB(80, 50, 140)
+bValor.TextColor3 = Color3.new(1,1,1)
+bValor.Text = "Calcular"
+bValor.Font = Enum.Font.SourceSansBold
+bValor.TextSize = 8
+local cPV = Instance.new("UICorner", bValor); cPV.CornerRadius = UDim.new(0, 6)
+bValor.MouseButton1Click:Connect(function()
+    local total = calcularValorTotal()
+    local notif = Instance.new("TextLabel", sg)
+    notif.Size = UDim2.new(0, 300, 0, 40)
+    notif.Position = UDim2.new(0.5, -150, 0.1, 0)
+    notif.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    notif.TextColor3 = Color3.new(1,1,1)
+    notif.Text = "Valor total da base: " .. tostring(math.floor(total))
+    notif.Font = Enum.Font.SourceSansBold
+    notif.TextSize = 14
+    local cN = Instance.new("UICorner", notif); cN.CornerRadius = UDim.new(0, 8)
+    task.wait(3)
+    notif:Destroy()
+end)
+
+local bRedPequeno = Instance.new("TextButton", f)
+bRedPequeno.Size = UDim2.new(0, 25, 0, 25)
+bRedPequeno.Position = UDim2.new(1, 3, 0, 150)
+bRedPequeno.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
+bRedPequeno.TextColor3 = Color3.new(1,1,1)
+bRedPequeno.Text = ">"
+bRedPequeno.Font = Enum.Font.SourceSansBold
+bRedPequeno.TextSize = 14
+local cBRP = Instance.new("UICorner", bRedPequeno); cBRP.CornerRadius = UDim.new(0, 6)
+
+local janelaAberta = false
+
+local function atualizarJanela()
+    local posF = f.AbsolutePosition
+    local sizeF = f.AbsoluteSize
+    fJanela.Position = UDim2.new(0, posF.X + sizeF.X + 30, 0, posF.Y)
+end
+
+local function toggleJanela()
+    janelaAberta = not janelaAberta
+    fJanela.Visible = janelaAberta
+    if janelaAberta then
+        bRedPequeno.Text = "<"
+    else
+        bRedPequeno.Text = ">"
+    end
+    atualizarJanela()
+end
+
+bRedPequeno.MouseButton1Click:Connect(toggleJanela)
+
+task.spawn(function()
+    while task.wait(0.05) do
+        if janelaAberta then
+            atualizarJanela()
+        end
+    end
+end)
+
+local sc = Instance.new("ScrollingFrame", f)
+sc.Size = UDim2.new(1, -16, 0, 190)
+sc.Position = UDim2.new(0, 8, 0, 138)
+sc.CanvasSize = UDim2.new(0, 0, 0, 0)
+sc.AutomaticCanvasSize = Enum.AutomaticSize.Y
+sc.ScrollBarThickness = 4
+sc.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
+sc.BorderSizePixel = 0
+local cS = Instance.new("UICorner", sc); cS.CornerRadius = UDim.new(0, 6)
+local layS = Instance.new("UIListLayout", sc); layS.Padding = UDim.new(0, 2)
+
+local abaAtual = "spaw"
+local petsMarcados = {}
+
+local function rarFiltroAtiva(r)
+    for _, f in ipairs(rars) do
+        if f.a and r:lower():find(f.n:lower()) then return true end
+    end
+    return false
+end
+
+local function rarTemFiltro()
+    for _, f in ipairs(rars) do if f.a then return true end end
+    return false
+end
+
+local function listarSpawn()
+    local l = {}
+    local cf = workspace:FindFirstChild("Client")
+    if not cf then return l end
+    local sf = cf:FindFirstChild("Spawn")
+    if not sf then return l end
+    local pf = sf:FindFirstChild("Pets")
+    if not pf then return l end
+    for _, pet in pairs(pf:GetChildren()) do
+        local pr = pet:FindFirstChild("ProximityPrompt")
+        if pr and pr:IsA("ProximityPrompt") then
+            local ni = "?"
+            local rar = "?"
+            local pc = "?"
+            local ui = pet:FindFirstChild("UI")
+            if ui then
+                local ui2 = ui:FindFirstChild("UI")
+                if ui2 then
+                    local uf = ui2:FindFirstChild("Frame")
+                    if uf then
+                        local tf = uf:FindFirstChild("Title")
+                        if tf then
+                            local tl = tf:FindFirstChild("Title")
+                            if tl then ni = tl.Text end
+                        end
+                        local rl = uf:FindFirstChild("Rarity")
+                        if rl then rar = rl.Text end
+                        local pl = uf:FindFirstChild("Price")
+                        if pl then pc = pl.Text end
+                    end
+                end
+            end
+            local d = getInfo(ni)
+            local nt = tr[ni] or ni
+            local foto = d and d.i or "rbxassetid://0"
+            local er = d and d.e or "?"
+            table.insert(l, {id=pet.Name, n=nt, r=rar, p=pc, i=foto, e=er, k=ni})
+        end
+    end
+    return l
+end
+
+local function listarSelect()
+    local l = {}
+    for _, p in ipairs(petsData) do
+        table.insert(l, {id=p.k, n=p.n, r=p.r, p=p.p, i=p.i, e=p.e, k=p.k})
+    end
+    return l
+end
+
+local function atLista()
+    for _, c in pairs(sc:GetChildren()) do
+        if c:IsA("Frame") then c:Destroy() end
+    end
+    local lista = {}
+    if abaAtual == "spaw" then lista = listarSpawn()
+    elseif abaAtual == "select" then lista = listarSelect() end
+    local filtrada = {}
+    for _, p in ipairs(lista) do
+        if abaAtual ~= "select" or not rarTemFiltro() or rarFiltroAtiva(p.r) then
+            table.insert(filtrada, p)
+        end
+    end
+    table.sort(filtrada, function(a,b)
+        local function cp(t)
+            if not t then return 0 end
+            t = tostring(t):gsub("%$",""):gsub(",",""):gsub("%s","")
+            local n, s = t:match("([%d%.]+)(%a?)")
+            if not n then return 0 end
+            n = tonumber(n) or 0
+            s = s:upper()
+            if s == "K" then n = n*1000
+            elseif s == "M" then n = n*1000000
+            elseif s == "B" then n = n*1000000000
+            elseif s == "T" then n = n*1000000000000 end
+            return n
+        end
+        return cp(a.p) > cp(b.p)
+    end)
+    for _, p in ipairs(filtrada) do
+        local marcado = petsMarcados[p.id]
+        local it = Instance.new("Frame", sc)
+        it.Size = UDim2.new(1, -4, 0, 34)
+        it.BackgroundColor3 = marcado and Color3.fromRGB(0, 80, 0) or Color3.fromRGB(30, 60, 30)
+        it.BorderSizePixel = 0
+        local cI = Instance.new("UICorner", it); cI.CornerRadius = UDim.new(0, 6)
+        local sI = Instance.new("UIStroke", it); sI.Color = corRar(p.r); sI.Thickness = 2
+        local im = Instance.new("ImageLabel", it)
+        im.Size = UDim2.new(0, 28, 0, 28)
+        im.Position = UDim2.new(0, 3, 0, 3)
+        im.BackgroundTransparency = 1
+        im.Image = p.i
+        im.ScaleType = Enum.ScaleType.Fit
+        local chk = Instance.new("TextButton", it)
+        chk.Size = UDim2.new(0, 20, 0, 20)
+        chk.Position = UDim2.new(0, 34, 0, 7)
+        chk.BackgroundColor3 = marcado and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(80, 80, 80)
+        chk.Text = marcado and "X" or ""
+        chk.TextColor3 = Color3.new(1,1,1)
+        chk.Font = Enum.Font.SourceSansBold
+        chk.TextSize = 12
+        local cCh = Instance.new("UICorner", chk); cCh.CornerRadius = UDim.new(0, 4)
+        chk.MouseButton1Click:Connect(function()
+            petsMarcados[p.id] = not petsMarcados[p.id]
+            if petsMarcados[p.id] then
+                chk.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+                chk.Text = "X"
+                it.BackgroundColor3 = Color3.fromRGB(0, 80, 0)
+            else
+                chk.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+                chk.Text = ""
+                it.BackgroundColor3 = Color3.fromRGB(30, 60, 30)
+            end
+        end)
+        local t1 = Instance.new("TextLabel", it)
+        t1.Size = UDim2.new(1, -60, 0, 14)
+        t1.Position = UDim2.new(0, 58, 0, 2)
+        t1.BackgroundTransparency = 1
+        t1.TextColor3 = Color3.fromRGB(230, 230, 230)
+        t1.Text = p.n .. " (" .. p.r .. ")"
+        t1.Font = Enum.Font.SourceSansBold
+        t1.TextSize = 9
+        t1.TextXAlignment = Enum.TextXAlignment.Left
+        local t2 = Instance.new("TextLabel", it)
+        t2.Size = UDim2.new(1, -60, 0, 14)
+        t2.Position = UDim2.new(0, 58, 0, 17)
+        t2.BackgroundTransparency = 1
+        t2.TextColor3 = corRar(p.r)
+        t2.Text = p.p .. " | $" .. p.e .. "/s"
+        t2.Font = Enum.Font.SourceSansBold
+        t2.TextSize = 8
+        t2.TextXAlignment = Enum.TextXAlignment.Left
+    end
+end
+
+local function setAba(aba)
+    abaAtual = aba
+    bPetSpaw.BackgroundColor3 = aba == "spaw" and Color3.fromRGB(80, 50, 140) or Color3.fromRGB(60, 60, 60)
+    bPetSpaw.TextColor3 = aba == "spaw" and Color3.new(1,1,1) or Color3.fromRGB(180, 180, 180)
+    bSelectPets.BackgroundColor3 = aba == "select" and Color3.fromRGB(80, 50, 140) or Color3.fromRGB(60, 60, 60)
+    bSelectPets.TextColor3 = aba == "select" and Color3.new(1,1,1) or Color3.fromRGB(180, 180, 180)
+    contR.Visible = (aba == "spaw" or aba == "select")
+    atLista()
+end
+
+bPetSpaw.MouseButton1Click:Connect(function() setAba("spaw") end)
+bSelectPets.MouseButton1Click:Connect(function() setAba("select") end)
+
+local bBolinha = Instance.new("TextButton", sg)
+bBolinha.Size = UDim2.new(0, 40, 0, 40)
+bBolinha.Position = UDim2.new(0, 10, 0.3, 0)
+bBolinha.BackgroundColor3 = Color3.fromRGB(120, 70, 220)
+bBolinha.TextColor3 = Color3.new(1,1,1)
+bBolinha.Text = "PH"
+bBolinha.Font = Enum.Font.SourceSansBold
+bBolinha.TextSize = 14
+bBolinha.Visible = false
+bBolinha.Active = true
+local cBBol = Instance.new("UICorner", bBolinha); cBBol.CornerRadius = UDim.new(1, 0)
+local sBBol = Instance.new("UIStroke", bBolinha); sBBol.Color = Color3.new(0,0,0); sBBol.Thickness = 3
+
+local arrastandoBola = false
+local offsetBolaX, offsetBolaY = 0, 0
+local moveuBola = false
+
+bBolinha.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        arrastandoBola = true
+        moveuBola = false
+        local p = input.Position
+        offsetBolaX = p.X - bBolinha.AbsolutePosition.X
+        offsetBolaY = p.Y - bBolinha.AbsolutePosition.Y
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if arrastandoBola and input.UserInputType == Enum.UserInputType.Touch then
+        moveuBola = true
+        local p = input.Position
+        bBolinha.Position = UDim2.new(0, p.X - offsetBolaX, 0, p.Y - offsetBolaY)
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        if arrastandoBola then
+            arrastandoBola = false
+            if not moveuBola then
+                f.Visible = true
+                bBolinha.Visible = false
+                bRedPequeno.Visible = true
+            end
+        end
+    end
+end)
+
+bMin.MouseButton1Click:Connect(function()
+    f.Visible = false
+    fJanela.Visible = false
+    bRedPequeno.Visible = false
+    bBolinha.Visible = true
+end)
+
+bX.MouseButton1Click:Connect(function()
+    local sgConf = Instance.new("ScreenGui", game.CoreGui)
+    sgConf.ResetOnSpawn = false
+    local fConf = Instance.new("Frame", sgConf)
+    fConf.Size = UDim2.new(0, 250, 0, 130)
+    fConf.Position = UDim2.new(0.5, -125, 0.5, -65)
+    fConf.BackgroundColor3 = Color3.fromRGB(25, 20, 40)
+    local cConf = Instance.new("UICorner", fConf); cConf.CornerRadius = UDim.new(0, 12)
+    local sConf = Instance.new("UIStroke", fConf); sConf.Color = Color3.fromRGB(255, 80, 80); sConf.Thickness = 3
+    local titConf = Instance.new("TextLabel", fConf)
+    titConf.Size = UDim2.new(1, 0, 0, 28)
+    titConf.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
+    titConf.TextColor3 = Color3.new(1,1,1)
+    titConf.Text = "FECHAR SCRIPT?"
+    titConf.Font = Enum.Font.SourceSansBold
+    titConf.TextSize = 12
+    local cTitConf = Instance.new("UICorner", titConf); cTitConf.CornerRadius = UDim.new(0, 12)
+    local textoConf = Instance.new("TextLabel", fConf)
+    textoConf.Size = UDim2.new(1, -20, 0, 40)
+    textoConf.Position = UDim2.new(0, 10, 0, 35)
+    textoConf.BackgroundTransparency = 1
+    textoConf.TextColor3 = Color3.fromRGB(255, 200, 200)
+    textoConf.Text = "Tem certeza que quer fechar o script?"
+    textoConf.Font = Enum.Font.SourceSansBold
+    textoConf.TextSize = 12
+    textoConf.TextWrapped = true
+    local bSim = Instance.new("TextButton", fConf)
+    bSim.Size = UDim2.new(0.5, -15, 0, 32)
+    bSim.Position = UDim2.new(0, 10, 1, -42)
+    bSim.BackgroundColor3 = Color3.fromRGB(0, 160, 80)
+    bSim.TextColor3 = Color3.new(1,1,1)
+    bSim.Text = "SIM"
+    bSim.Font = Enum.Font.SourceSansBold
+    bSim.TextSize = 12
+    local cSim = Instance.new("UICorner", bSim); cSim.CornerRadius = UDim.new(0, 8)
+    local bNao = Instance.new("TextButton", fConf)
+    bNao.Size = UDim2.new(0.5, -15, 0, 32)
+    bNao.Position = UDim2.new(0.5, 5, 1, -42)
+    bNao.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
+    bNao.TextColor3 = Color3.new(1,1,1)
+    bNao.Text = "NAO"
+    bNao.Font = Enum.Font.SourceSansBold
+    bNao.TextSize = 12
+    local cNao = Instance.new("UICorner", bNao); cNao.CornerRadius = UDim.new(0, 8)
+    bSim.MouseButton1Click:Connect(function()
+        f.Visible = false
+        fJanela.Visible = false
+        bRedPequeno.Visible = false
+        bBolinha.Visible = false
+        fConf:Destroy()
+        sgConf:Destroy()
+    end)
+    bNao.MouseButton1Click:Connect(function()
+        fConf:Destroy()
+        sgConf:Destroy()
+    end)
+end)
+
+local bShift = Instance.new("TextButton", sg)
+bShift.Name = "ShiftLockButton"
+bShift.Size = UDim2.new(0, 55, 0, 55)
+bShift.Position = UDim2.new(1, -80, 1, -295)
+bShift.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+bShift.BackgroundTransparency = 0.35
+bShift.Text = ""
+bShift.Active = true
+local cShift = Instance.new("UICorner", bShift); cShift.CornerRadius = UDim.new(1, 0)
+local sShift = Instance.new("UIStroke", bShift); sShift.Color = Color3.fromRGB(255, 255, 255); sShift.Thickness = 2
+
+local shiftIcon = Instance.new("ImageLabel", bShift)
+shiftIcon.Size = UDim2.new(0.65, 0, 0.65, 0)
+shiftIcon.Position = UDim2.new(0.175, 0, 0.175, 0)
+shiftIcon.BackgroundTransparency = 1
+shiftIcon.Image = "rbxassetid://6031075931"
+shiftIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+shiftIcon.ScaleType = Enum.ScaleType.Fit
+shiftIcon.Name = "Icone"
+
+local shiftAtivo = false
+local connShift = nil
+
+bShift.MouseButton1Click:Connect(function()
+    shiftAtivo = not shiftAtivo
+    local plr = Players.LocalPlayer
+    local char = plr.Character
+    if shiftAtivo then
+        bShift.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        bShift.BackgroundTransparency = 0.2
+        plr.CameraMode = Enum.CameraMode.Classic
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.CameraOffset = Vector3.new(1.5, 0.5, 0)
+                hum.AutoRotate = false
+            end
+        end
+        connShift = RunService.RenderStepped:Connect(function()
+            local c = plr.Character
+            if c then
+                local root = c:FindFirstChild("HumanoidRootPart")
+                local cam = workspace.CurrentCamera
+                if root and cam then
+                    local moveDir = cam.CFrame.LookVector
+                    local newCF = CFrame.new(root.Position, root.Position + Vector3.new(moveDir.X, 0, moveDir.Z))
+                    root.CFrame = newCF
+                end
+            end
+        end)
+    else
+        bShift.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        bShift.BackgroundTransparency = 0.35
+        plr.CameraMode = Enum.CameraMode.Classic
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.CameraOffset = Vector3.new(0, 0, 0)
+                hum.AutoRotate = true
+            end
+        end
+        if connShift then
+            connShift:Disconnect()
+            connShift = nil
+        end
+    end
+end)
+
+local ultimaLista = ""
+task.spawn(function()
+    while task.wait(0.5) do
+        local listaAtual = ""
+        if abaAtual == "spaw" then
+            local cf = workspace:FindFirstChild("Client")
+            if cf then
+                local sf = cf:FindFirstChild("Spawn")
+                if sf then
+                    local pf = sf:FindFirstChild("Pets")
+                    if pf then
+                        for _, pet in pairs(pf:GetChildren()) do
+                            listaAtual = listaAtual .. pet.Name .. ","
+                        end
+                    end
+                end
+            end
+            if listaAtual ~= ultimaLista then
+                ultimaLista = listaAtual
+                atLista()
+            end
+        end
+
+        if autoEquipAtivo then
+            pcall(function()
+                Bridge:FireServer("Bases", "Pets", "EquipBest")
+            end)
+        end
+
+        if autoAtivo and rarTemFiltro() then
+            local cf = workspace:FindFirstChild("Client")
+            if cf then
+                local sf = cf:FindFirstChild("Spawn")
+                if sf then
+                    local pf = sf:FindFirstChild("Pets")
+                    if pf then
+                        for _, pet in pairs(pf:GetChildren()) do
+                            local prompt = pet:FindFirstChild("ProximityPrompt")
+                            if prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                                local rar = "?"
+                                local ui = pet:FindFirstChild("UI")
+                                if ui then
+                                    local ui2 = ui:FindFirstChild("UI")
+                                    if ui2 then
+                                        local uf = ui2:FindFirstChild("Frame")
+                                        if uf then
+                                            local rl = uf:FindFirstChild("Rarity")
+                                            if rl then rar = rl.Text end
+                                        end
+                                    end
+                                end
+                                if rarFiltroAtiva(rar) then
+                                    Bridge:FireServer("Spawn", "Pets", "Purchase", pet.Name)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        if true then
+            local listaCompra = {}
+            if abaAtual == "spaw" then
+                listaCompra = listarSpawn()
+            elseif abaAtual == "select" then
+                listaCompra = listarSelect()
+            end
+            for _, p in ipairs(listaCompra) do
+                if petsMarcados[p.id] then
+                    Bridge:FireServer("Spawn", "Pets", "Purchase", p.id)
+                end
+            end
+        end
+    end
+end)
+
+setAba("spaw")
+print("PH HUB v7 CARREGADO!")
+    `;
+    res.setHeader("Content-Type", "text/plain");
+    return res.status(200).send(PH_HUB);
+}
