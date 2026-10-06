@@ -1,13 +1,18 @@
 export default function handler(req, res) {
-    const { token, user } = req.query;
-    const TOKEN_VALIDO = "PHHUB-KEY-2026-A7X9K2-MEU";
-    const USERS_AUTORIZADOS = ["voce", "amigo1", "amigo2"];
+    const { key, user } = req.query;
 
-    if (!token || token !== TOKEN_VALIDO) {
-        return res.status(401).send("-- Token invalido");
+    const KEYS_VALIDAS = {
+        "PHHUB-MEU-ACESSO-2026-XYZ": "voce",
+        "PHHUB-JOAO-2026-A7X9": "joao",
+        "PHHUB-MARIA-2026-B8Y2": "maria",
+        "PHHUB-PEDRO-2026-C9Z3": "pedro"
+    };
+
+    if (!key || !KEYS_VALIDAS[key]) {
+        return res.status(401).send("-- Key invalida");
     }
-    if (!user || !USERS_AUTORIZADOS.includes(user)) {
-        return res.status(403).send("-- Usuario nao autorizado");
+    if (!user || KEYS_VALIDAS[key] !== user) {
+        return res.status(403).send("-- Key nao pertence a esse usuario");
     }
 
     const PH_HUB = `
@@ -18,7 +23,6 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local tempoEntrada = tick()
-local historicoPets = {}
 
 local petsData = {
     {n="Coruja",r="Uncommon",p="7.5K",e="20",i="rbxassetid://108715563253264",k="Owl"},
@@ -120,11 +124,9 @@ end
 local sg = Instance.new("ScreenGui", game.CoreGui)
 sg.ResetOnSpawn = false
 
--- Remove HUD antigo se duplicado
 local hudAntigo = sg:FindFirstChild("HUDPanel")
 if hudAntigo then hudAntigo:Destroy() end
 
--- NOME GRANDE
 local nomeGrande = Instance.new("TextLabel", sg)
 nomeGrande.Name = "NomeGrandePH"
 nomeGrande.Size = UDim2.new(0, 600, 0, 100)
@@ -148,7 +150,6 @@ task.spawn(function()
     nomeGrande:Destroy()
 end)
 
--- HUD COMPACTO
 local hudPanel = Instance.new("Frame", sg)
 hudPanel.Name = "HUDPanel"
 hudPanel.Size = UDim2.new(0, 150, 0, 65)
@@ -212,7 +213,6 @@ task.spawn(function()
     end
 end)
 
--- JANELA
 local fJanela = Instance.new("Frame", sg)
 fJanela.Size = UDim2.new(0, 220, 0, 420)
 fJanela.Position = UDim2.new(0.5, 135, 0.15, 0)
@@ -250,9 +250,12 @@ laySJ.SortOrder = Enum.SortOrder.LayoutOrder
 
 task.spawn(function()
     while scJ and scJ.Parent do
-        task.wait(0.15)
+        task.wait(0.2)
         local tam = laySJ.AbsoluteContentSize.Y
-        scJ.CanvasSize = UDim2.new(0, 0, 0, tam + 10)
+        if scJ.CanvasSize.Y.Offset ~= tam + 10 then
+            scJ.CanvasSize = UDim2.new(0, 0, 0, tam + 10)
+        end
+        scJ.CanvasPosition = Vector2.new(0, math.min(scJ.CanvasPosition.Y, math.max(0, tam - scJ.AbsoluteSize.Y + 20)))
     end
 end)
 
@@ -452,7 +455,6 @@ criarCheckJanela("Player Aura", function(ativo)
     end
 end)
 
--- BASE RAINBOW CORRIGIDO
 criarCheckJanela("Base Rainbow", function(ativo)
     if ativo then
         task.spawn(function()
@@ -463,40 +465,18 @@ criarCheckJanela("Base Rainbow", function(ativo)
                     if not cf then return end
                     local bases = cf:FindFirstChild("Bases")
                     if not bases then return end
+                    local char = plr.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    if not hrp then return end
                     local minhaBase = nil
+                    local menorDist = math.huge
                     for _, base in ipairs(bases:GetChildren()) do
-                        for _, obj in ipairs(base:GetDescendants()) do
-                            if obj:IsA("StringValue") or obj:IsA("ObjectValue") or obj:IsA("IntValue") then
-                                local val = tostring(obj.Value)
-                                if val == plr.Name or val == tostring(plr.UserId) then
-                                    minhaBase = base
-                                    break
-                                end
-                            end
-                        end
-                        if minhaBase then break end
-                    end
-                    if not minhaBase then
-                        local nomeBase = "Base" .. tostring(plr.UserId)
-                        minhaBase = bases:FindFirstChild(nomeBase)
-                        if not minhaBase then
-                            minhaBase = bases:FindFirstChild(plr.Name)
-                        end
-                    end
-                    if not minhaBase then
-                        local char = plr.Character
-                        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            local menorDist = math.huge
-                            for _, base in ipairs(bases:GetChildren()) do
-                                local part = base:FindFirstChildWhichIsA("BasePart", true)
-                                if part then
-                                    local d = (part.Position - hrp.Position).Magnitude
-                                    if d < menorDist and d < 200 then
-                                        menorDist = d
-                                        minhaBase = base
-                                    end
-                                end
+                        local basePart = base:FindFirstChildWhichIsA("BasePart", true)
+                        if basePart then
+                            local d = (basePart.Position - hrp.Position).Magnitude
+                            if d < menorDist then
+                                menorDist = d
+                                minhaBase = base
                             end
                         end
                     end
@@ -507,6 +487,7 @@ criarCheckJanela("Base Rainbow", function(ativo)
                             pcall(function()
                                 if obj:IsA("BasePart") then
                                     obj.Color = cor
+                                    obj.Material = Enum.Material.SmoothPlastic
                                 elseif obj:IsA("Decal") then
                                     obj.Color3 = cor
                                 elseif obj:IsA("Texture") then
@@ -532,74 +513,6 @@ criarCheckJanela("Auto Upgrade Base", function(ativo)
                 task.wait(2)
             end
         end)
-    end
-end)
-
--- HISTORICO DE PETS
-contadorLayout = contadorLayout + 1
-local histFrame = Instance.new("Frame", scJ)
-histFrame.Name = "HistoricoPets"
-histFrame.LayoutOrder = contadorLayout
-histFrame.Size = UDim2.new(1, -4, 0, 0)
-histFrame.BackgroundColor3 = Color3.fromRGB(30, 25, 45)
-histFrame.BorderSizePixel = 0
-histFrame.Visible = false
-local cHist = Instance.new("UICorner", histFrame); cHist.CornerRadius = UDim.new(0, 6)
-
-local histTitulo = Instance.new("TextLabel", histFrame)
-histTitulo.Size = UDim2.new(1, 0, 0, 20)
-histTitulo.BackgroundColor3 = Color3.fromRGB(60, 40, 100)
-histTitulo.TextColor3 = Color3.new(1,1,1)
-histTitulo.Text = "Historico de Pets"
-histTitulo.Font = Enum.Font.SourceSansBold
-histTitulo.TextSize = 10
-local cHT = Instance.new("UICorner", histTitulo); cHT.CornerRadius = UDim.new(0, 6)
-
-local histLista = Instance.new("Frame", histFrame)
-histLista.Size = UDim2.new(1, -8, 0, 0)
-histLista.Position = UDim2.new(0, 4, 0, 24)
-histLista.BackgroundTransparency = 1
-local layHist = Instance.new("UIListLayout", histLista); layHist.Padding = UDim.new(0, 2)
-
-local function atualizarHistorico()
-    for _, c in pairs(histLista:GetChildren()) do
-        if c:IsA("TextLabel") then c:Destroy() end
-    end
-    local count = 0
-    for i = #historicoPets, 1, -1 do
-        if count >= 5 then break end
-        local h = historicoPets[i]
-        local linha = Instance.new("TextLabel", histLista)
-        linha.Size = UDim2.new(1, 0, 0, 16)
-        linha.BackgroundTransparency = 1
-        linha.TextColor3 = Color3.fromRGB(200, 200, 200)
-        linha.Text = h.hora .. " - " .. h.tipo .. " (" .. h.qtd .. ")"
-        linha.Font = Enum.Font.SourceSansBold
-        linha.TextSize = 9
-        linha.TextXAlignment = Enum.TextXAlignment.Left
-        count = count + 1
-    end
-    histLista.Size = UDim2.new(1, -8, 0, math.max(0, count * 18))
-    histFrame.Size = UDim2.new(1, -4, 0, 24 + math.max(0, count * 18) + 4)
-end
-
-contadorLayout = contadorLayout + 1
-local bHist = Instance.new("TextButton", scJ)
-bHist.LayoutOrder = contadorLayout
-bHist.Size = UDim2.new(1, -4, 0, 24)
-bHist.BackgroundColor3 = Color3.fromRGB(80, 50, 140)
-bHist.TextColor3 = Color3.new(1,1,1)
-bHist.Text = "Mostrar Historico"
-bHist.Font = Enum.Font.SourceSansBold
-bHist.TextSize = 10
-local cBHist = Instance.new("UICorner", bHist); cBHist.CornerRadius = UDim.new(0, 6)
-bHist.MouseButton1Click:Connect(function()
-    histFrame.Visible = not histFrame.Visible
-    if histFrame.Visible then
-        bHist.Text = "Esconder Historico"
-        atualizarHistorico()
-    else
-        bHist.Text = "Mostrar Historico"
     end
 end)
 
@@ -629,7 +542,6 @@ bHop.MouseButton1Click:Connect(function()
     end
 end)
 
--- PAINEL PRINCIPAL
 local f = Instance.new("Frame", sg)
 f.Size = UDim2.new(0, 260, 0, 340)
 f.Position = UDim2.new(0.5, -130, 0.15, 0)
@@ -692,9 +604,6 @@ bAutoEquip.MouseButton1Click:Connect(function()
         bAutoEquip.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
         bAutoEquip.TextColor3 = Color3.new(1,1,1)
         bAutoEquip.Text = "Auto Equip: ON"
-        table.insert(historicoPets, {tipo="Auto Equip", qtd=0, hora=os.date("%H:%M:%S")})
-        if #historicoPets > 10 then table.remove(historicoPets, 1) end
-        if histFrame.Visible then atualizarHistorico() end
     else
         bAutoEquip.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
         bAutoEquip.TextColor3 = Color3.fromRGB(180, 180, 180)
@@ -726,9 +635,6 @@ bSell.MouseButton1Click:Connect(function()
     for _, id in ipairs(ids) do tab[id] = true end
     pcall(function() Bridge:FireServer("Bases", "Pets", "Sell", tab) end)
     bSell.Text = "OK " .. #ids
-    table.insert(historicoPets, {tipo="Venda", qtd=#ids, hora=os.date("%H:%M:%S")})
-    if #historicoPets > 10 then table.remove(historicoPets, 1) end
-    if histFrame.Visible then atualizarHistorico() end
     local notif = Instance.new("TextLabel", sg)
     notif.Size = UDim2.new(0, 250, 0, 35)
     notif.Position = UDim2.new(0.5, -125, 0.15, 0)
@@ -1300,9 +1206,6 @@ task.spawn(function()
                                 end
                                 if rarFiltroAtiva(rar) then
                                     Bridge:FireServer("Spawn", "Pets", "Purchase", pet.Name)
-                                    table.insert(historicoPets, {tipo="Compra", qtd=1, hora=os.date("%H:%M:%S")})
-                                    if #historicoPets > 10 then table.remove(historicoPets, 1) end
-                                    if histFrame.Visible then atualizarHistorico() end
                                 end
                             end
                         end
@@ -1321,9 +1224,6 @@ task.spawn(function()
             for _, p in ipairs(listaCompra) do
                 if petsMarcados[p.id] then
                     Bridge:FireServer("Spawn", "Pets", "Purchase", p.id)
-                    table.insert(historicoPets, {tipo="Compra", qtd=1, hora=os.date("%H:%M:%S")})
-                    if #historicoPets > 10 then table.remove(historicoPets, 1) end
-                    if histFrame.Visible then atualizarHistorico() end
                 end
             end
         end
@@ -1331,8 +1231,8 @@ task.spawn(function()
 end)
 
 setAba("spaw")
-print("PH HUB v4 CARREGADO!")
+print("PH HUB v5 CARREGADO!")
     `;
     res.setHeader("Content-Type", "text/plain");
     return res.status(200).send(PH_HUB);
-        }
+}
