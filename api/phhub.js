@@ -120,6 +120,11 @@ end
 local sg = Instance.new("ScreenGui", game.CoreGui)
 sg.ResetOnSpawn = false
 
+-- Remove HUD antigo se duplicado
+local hudAntigo = sg:FindFirstChild("HUDPanel")
+if hudAntigo then hudAntigo:Destroy() end
+
+-- NOME GRANDE
 local nomeGrande = Instance.new("TextLabel", sg)
 nomeGrande.Name = "NomeGrandePH"
 nomeGrande.Size = UDim2.new(0, 600, 0, 100)
@@ -143,10 +148,11 @@ task.spawn(function()
     nomeGrande:Destroy()
 end)
 
+-- HUD COMPACTO
 local hudPanel = Instance.new("Frame", sg)
 hudPanel.Name = "HUDPanel"
-hudPanel.Size = UDim2.new(0, 220, 0, 90)
-hudPanel.Position = UDim2.new(1, -230, 0, 10)
+hudPanel.Size = UDim2.new(0, 150, 0, 65)
+hudPanel.Position = UDim2.new(1, -160, 0, 10)
 hudPanel.BackgroundColor3 = Color3.fromRGB(25, 20, 40)
 hudPanel.BorderSizePixel = 0
 hudPanel.Active = true
@@ -155,12 +161,12 @@ local cHud = Instance.new("UICorner", hudPanel); cHud.CornerRadius = UDim.new(0,
 local sHud = Instance.new("UIStroke", hudPanel); sHud.Color = Color3.fromRGB(150,100,255); sHud.Thickness = 2
 
 local pingLabel = Instance.new("TextLabel", hudPanel)
-pingLabel.Size = UDim2.new(1, -10, 0, 24)
-pingLabel.Position = UDim2.new(0, 5, 0, 5)
+pingLabel.Size = UDim2.new(1, -8, 0, 18)
+pingLabel.Position = UDim2.new(0, 4, 0, 3)
 pingLabel.BackgroundTransparency = 1
 pingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 pingLabel.Font = Enum.Font.SourceSansBold
-pingLabel.TextSize = 13
+pingLabel.TextSize = 11
 pingLabel.TextXAlignment = Enum.TextXAlignment.Left
 pingLabel.Text = "Ping: 0 ms"
 task.spawn(function()
@@ -172,28 +178,28 @@ task.spawn(function()
 end)
 
 local serverLabel = Instance.new("TextLabel", hudPanel)
-serverLabel.Size = UDim2.new(1, -10, 0, 24)
-serverLabel.Position = UDim2.new(0, 5, 0, 30)
+serverLabel.Size = UDim2.new(1, -8, 0, 18)
+serverLabel.Position = UDim2.new(0, 4, 0, 22)
 serverLabel.BackgroundTransparency = 1
 serverLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 serverLabel.Font = Enum.Font.SourceSansBold
-serverLabel.TextSize = 13
+serverLabel.TextSize = 11
 serverLabel.TextXAlignment = Enum.TextXAlignment.Left
-serverLabel.Text = "Server: " .. game.JobId:sub(1, 8) .. " | Players: " .. #Players:GetPlayers()
+serverLabel.Text = "Server: " .. game.JobId:sub(1, 8) .. " | P: " .. #Players:GetPlayers()
 task.spawn(function()
     while serverLabel and serverLabel.Parent do
         task.wait(2)
-        serverLabel.Text = "Server: " .. game.JobId:sub(1, 8) .. " | Players: " .. #Players:GetPlayers()
+        serverLabel.Text = "Server: " .. game.JobId:sub(1, 8) .. " | P: " .. #Players:GetPlayers()
     end
 end)
 
 local timerLabel = Instance.new("TextLabel", hudPanel)
-timerLabel.Size = UDim2.new(1, -10, 0, 24)
-timerLabel.Position = UDim2.new(0, 5, 0, 55)
+timerLabel.Size = UDim2.new(1, -8, 0, 18)
+timerLabel.Position = UDim2.new(0, 4, 0, 41)
 timerLabel.BackgroundTransparency = 1
 timerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 timerLabel.Font = Enum.Font.SourceSansBold
-timerLabel.TextSize = 13
+timerLabel.TextSize = 11
 timerLabel.TextXAlignment = Enum.TextXAlignment.Left
 timerLabel.Text = "Tempo: 00:00"
 task.spawn(function()
@@ -206,6 +212,7 @@ task.spawn(function()
     end
 end)
 
+-- JANELA
 local fJanela = Instance.new("Frame", sg)
 fJanela.Size = UDim2.new(0, 220, 0, 420)
 fJanela.Position = UDim2.new(0.5, 135, 0.15, 0)
@@ -235,6 +242,7 @@ scJ.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
 scJ.BorderSizePixel = 0
 scJ.Active = true
 scJ.ScrollingDirection = Enum.ScrollingDirection.Y
+scJ.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 local cSJ = Instance.new("UICorner", scJ); cSJ.CornerRadius = UDim.new(0, 6)
 local laySJ = Instance.new("UIListLayout", scJ)
 laySJ.Padding = UDim.new(0, 4)
@@ -242,11 +250,9 @@ laySJ.SortOrder = Enum.SortOrder.LayoutOrder
 
 task.spawn(function()
     while scJ and scJ.Parent do
-        task.wait(0.2)
+        task.wait(0.15)
         local tam = laySJ.AbsoluteContentSize.Y
-        if scJ.CanvasSize.Y.Offset < tam + 10 then
-            scJ.CanvasSize = UDim2.new(0, 0, 0, tam + 10)
-        end
+        scJ.CanvasSize = UDim2.new(0, 0, 0, tam + 10)
     end
 end)
 
@@ -446,6 +452,7 @@ criarCheckJanela("Player Aura", function(ativo)
     end
 end)
 
+-- BASE RAINBOW CORRIGIDO
 criarCheckJanela("Base Rainbow", function(ativo)
     if ativo then
         task.spawn(function()
@@ -458,18 +465,23 @@ criarCheckJanela("Base Rainbow", function(ativo)
                     if not bases then return end
                     local minhaBase = nil
                     for _, base in ipairs(bases:GetChildren()) do
-                        local achou = false
                         for _, obj in ipairs(base:GetDescendants()) do
-                            if obj:IsA("StringValue") or obj:IsA("ObjectValue") then
+                            if obj:IsA("StringValue") or obj:IsA("ObjectValue") or obj:IsA("IntValue") then
                                 local val = tostring(obj.Value)
                                 if val == plr.Name or val == tostring(plr.UserId) then
                                     minhaBase = base
-                                    achou = true
                                     break
                                 end
                             end
                         end
-                        if achou then break end
+                        if minhaBase then break end
+                    end
+                    if not minhaBase then
+                        local nomeBase = "Base" .. tostring(plr.UserId)
+                        minhaBase = bases:FindFirstChild(nomeBase)
+                        if not minhaBase then
+                            minhaBase = bases:FindFirstChild(plr.Name)
+                        end
                     end
                     if not minhaBase then
                         local char = plr.Character
@@ -480,7 +492,7 @@ criarCheckJanela("Base Rainbow", function(ativo)
                                 local part = base:FindFirstChildWhichIsA("BasePart", true)
                                 if part then
                                     local d = (part.Position - hrp.Position).Magnitude
-                                    if d < menorDist and d < 150 then
+                                    if d < menorDist and d < 200 then
                                         menorDist = d
                                         minhaBase = base
                                     end
@@ -489,16 +501,18 @@ criarCheckJanela("Base Rainbow", function(ativo)
                         end
                     end
                     if minhaBase then
-                        local hue = (tick() * 0.5) % 1
+                        local hue = (tick() * 0.3) % 1
                         local cor = Color3.fromHSV(hue, 1, 1)
                         for _, obj in ipairs(minhaBase:GetDescendants()) do
-                            if obj:IsA("BasePart") then
-                                obj.Color = cor
-                            elseif obj:IsA("Decal") then
-                                obj.Color3 = cor
-                            elseif obj:IsA("Texture") then
-                                obj.Color3 = cor
-                            end
+                            pcall(function()
+                                if obj:IsA("BasePart") then
+                                    obj.Color = cor
+                                elseif obj:IsA("Decal") then
+                                    obj.Color3 = cor
+                                elseif obj:IsA("Texture") then
+                                    obj.Color3 = cor
+                                end
+                            end)
                         end
                     end
                 end)
@@ -521,6 +535,7 @@ criarCheckJanela("Auto Upgrade Base", function(ativo)
     end
 end)
 
+-- HISTORICO DE PETS
 contadorLayout = contadorLayout + 1
 local histFrame = Instance.new("Frame", scJ)
 histFrame.Name = "HistoricoPets"
@@ -614,6 +629,7 @@ bHop.MouseButton1Click:Connect(function()
     end
 end)
 
+-- PAINEL PRINCIPAL
 local f = Instance.new("Frame", sg)
 f.Size = UDim2.new(0, 260, 0, 340)
 f.Position = UDim2.new(0.5, -130, 0.15, 0)
@@ -1284,6 +1300,9 @@ task.spawn(function()
                                 end
                                 if rarFiltroAtiva(rar) then
                                     Bridge:FireServer("Spawn", "Pets", "Purchase", pet.Name)
+                                    table.insert(historicoPets, {tipo="Compra", qtd=1, hora=os.date("%H:%M:%S")})
+                                    if #historicoPets > 10 then table.remove(historicoPets, 1) end
+                                    if histFrame.Visible then atualizarHistorico() end
                                 end
                             end
                         end
@@ -1302,6 +1321,9 @@ task.spawn(function()
             for _, p in ipairs(listaCompra) do
                 if petsMarcados[p.id] then
                     Bridge:FireServer("Spawn", "Pets", "Purchase", p.id)
+                    table.insert(historicoPets, {tipo="Compra", qtd=1, hora=os.date("%H:%M:%S")})
+                    if #historicoPets > 10 then table.remove(historicoPets, 1) end
+                    if histFrame.Visible then atualizarHistorico() end
                 end
             end
         end
@@ -1309,8 +1331,8 @@ task.spawn(function()
 end)
 
 setAba("spaw")
-print("PH HUB v3 CARREGADO!")
+print("PH HUB v4 CARREGADO!")
     `;
     res.setHeader("Content-Type", "text/plain");
     return res.status(200).send(PH_HUB);
-}
+        }
