@@ -361,22 +361,6 @@ criarCheckJanela("Servers com 1 pessoa", function(ativo)
     end
 end)
 
-criarCheckJanela("Auto Kick (pessoas)", function(ativo)
-    if ativo then
-        task.spawn(function()
-            while task.wait(1) do
-                for _, plr in pairs(Players:GetPlayers()) do
-                    if plr ~= Players.LocalPlayer then
-                        pcall(function()
-                            plr:Kick("PH HUB - Auto Kick")
-                        end)
-                    end
-                end
-            end
-        end)
-    end
-end)
-
 criarCheckJanela("NoClip", function(ativo)
     local plr = Players.LocalPlayer
     local char = plr.Character or plr.CharacterAdded:Wait()
@@ -452,54 +436,6 @@ criarCheckJanela("Player Aura", function(ativo)
                 if hl then hl:Destroy() end
             end
         end
-    end
-end)
-
-criarCheckJanela("Base Rainbow", function(ativo)
-    if ativo then
-        task.spawn(function()
-            while ativo do
-                pcall(function()
-                    local plr = Players.LocalPlayer
-                    local cf = workspace:FindFirstChild("Client")
-                    if not cf then return end
-                    local bases = cf:FindFirstChild("Bases")
-                    if not bases then return end
-                    local char = plr.Character
-                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-                    if not hrp then return end
-                    local minhaBase = nil
-                    local menorDist = math.huge
-                    for _, base in ipairs(bases:GetChildren()) do
-                        local basePart = base:FindFirstChildWhichIsA("BasePart", true)
-                        if basePart then
-                            local d = (basePart.Position - hrp.Position).Magnitude
-                            if d < menorDist then
-                                menorDist = d
-                                minhaBase = base
-                            end
-                        end
-                    end
-                    if minhaBase then
-                        local hue = (tick() * 0.3) % 1
-                        local cor = Color3.fromHSV(hue, 1, 1)
-                        for _, obj in ipairs(minhaBase:GetDescendants()) do
-                            pcall(function()
-                                if obj:IsA("BasePart") then
-                                    obj.Color = cor
-                                    obj.Material = Enum.Material.SmoothPlastic
-                                elseif obj:IsA("Decal") then
-                                    obj.Color3 = cor
-                                elseif obj:IsA("Texture") then
-                                    obj.Color3 = cor
-                                end
-                            end)
-                        end
-                    end
-                end)
-                RunService.Heartbeat:Wait()
-            end
-        end)
     end
 end)
 
@@ -1231,7 +1167,7 @@ task.spawn(function()
 end)
 
 setAba("spaw")
-print("PH HUB v5 CARREGADO!")
+print("PH HUB v6 CARREGADO!")
     `;
     res.setHeader("Content-Type", "text/plain");
     return res.status(200).send(PH_HUB);
